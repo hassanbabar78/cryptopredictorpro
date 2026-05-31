@@ -1,0 +1,312 @@
+# Crypto Predictor Frontend Project Plan
+
+This document outlines the key features and their implementation steps for the Crypto Predictor Frontend application, incorporating details from the provided backend API documentation.
+
+## 1. Health Check (Backend Status)
+- **Endpoint:** `GET /health`
+- **Description:** Implement a mechanism to check the server and database health. This can be used for initial application loading or status displays.
+- **Expected Response (JSON):**
+```json
+{
+  "status": "healthy",
+  "mongodb": "connected"
+}
+```
+**Source:** [Apis for backend testing_ (1).pdf](file:///home/hassan/Documents/SE/crypto-predictor-frontend/Apis%20for%20backend%20testing_%20%281%29.pdf)
+
+## 2. Authentication Feature
+
+### 2.1 User Registration
+- **Endpoint:** `POST /signup`
+- **Description:** Implement a user registration form to create new accounts.
+- **Request Body:**
+```json
+{
+  "name": "testuser",
+  "password": "testpass123"
+}
+```
+- **Success Response Handling:** Display success message, indicate payment requirement, show payment amount (1 SOL), provide the payment address, and the Solana explorer link.
+```json
+{
+  "user_id": "7d02453cc663",
+  "message": "Signup successful. Please pay 1 SOL to unlock predictor.",
+  "payment_required": true,
+  "payment_amount": "1 SOL",
+  "payment_address": "VqhmcMjsoW185gzvuQPUJXEVZiSEadCHKqSdr1YzKru",
+  "explorer": "https://explorer.solana.com/address/VqhmcMjsoW185gzvuQPUJXEVZiSEadCHKqSdr1YzKru?cluster=devnet"
+}
+```
+**Source:** [Apis for backend testing_ (1).pdf](file:///home/hassan/Documents/SE/crypto-predictor-frontend/Apis%20for%20backend%20testing_%20%281%29.pdf)
+
+### 2.2 User Login
+- **Endpoint:** `POST /login`
+- **Description:** Implement a user login form to authenticate existing users.
+- **Request Parameters:** `name` and `password` as query parameters.
+```
+curl -X POST "http://localhost:8000/login?name=testuser&password=testpass123"
+```
+- **Response Handling (Before Payment):** Display user ID, name, `has_paid` status (false), `credits` (0), `payment_status` (pending), and `payment_address`.
+```json
+{
+  "user_id": "7d02453cc663",
+  "name": "testuser",
+  "has_paid": false,
+  "credits": 0,
+  "payment_status": "pending",
+  "payment_address": "VqhmcMjsoW185gzvuQPUJXEVZiSEadCHKqSdr1YzKru"
+}
+```
+- **Response Handling (After Payment):** Display user ID, name, `has_paid` status (true), `credits` (50), and `payment_status` (paid).
+```json
+{
+  "user_id": "7d02453cc663",
+  "name": "testuser",
+  "has_paid": true,
+  "credits": 50,
+  "payment_status": "paid"
+}
+```
+**Source:** [Apis for backend testing_ (1).pdf](file:///home/hassan/Documents/SE/crypto-predictor-frontend/Apis%20for%20backend%20testing_%20%281%29.pdf)
+
+## 3. Live Data Display Feature
+
+### 3.1 WebSocket Connection and Subscription
+- **URL:** `ws://localhost:8765`
+- **Description:** Establish a WebSocket connection to receive real-time cryptocurrency candle data. Implement UI elements to allow users to select `coin` and `interval`.
+- **Subscription Request (Frontend to WebSocket):**
+```json
+{
+  "action": "subscribe",
+  "coin": "BTC",
+  "interval": "4h"
+}
+```
+- **Available Coins:** BTC (Bitcoin), ETH (Ethereum), SOL (Solana), BNB (Binance Coin), XRP (Ripple), DOGE (Dogecoin), ADA (Cardano), MATIC (Polygon - use POL as symbol).
+- **Available Intervals:** 4h, 1d, 1w.
+
+### 3.2 Displaying Live Candle Data
+- **Description:** Process the WebSocket data and render it as a real-time trading view chart. Display the last 1000 data points.
+- **Expected WebSocket Response Format (Candles):**
+```json
+{
+  "type": "candles",
+  "timestamp": "2024-01-15T10:30:00",
+  "coin": "BTC",
+  "coin_name": "Bitcoin",
+  "interval": "4h",
+  "count": 1000,
+  "first_candle": { "time": 1750348800000, "date": "2025-06-19T00:00:00", "price": 62000.50 },
+  "last_candle": { "time": 1764734400000, "date": "2025-12-03T12:00:00", "price": 93150.00 },
+  "price_range": { "lowest": 58000.25, "highest": 95000.75 },
+  "candles": [
+    { "time": 1750348800000, "open": 62000.50, "high": 62500.75, "low": 61800.25, "close": 62250.30, "volume": 1250.45 },
+    { "time": 1750363200000, "open": 62251.30, "high": 62800.50, "low": 62000.75, "close": 62650.20, "volume": 1320.60 }
+    // ... more candles ...
+  ]
+}
+```
+**Source:** [Apis for backend testing_ (1).pdf](file:///home/hassan/Documents/SE/crypto-predictor-frontend/Apis%20for%20backend%20testing_%20%281%29.pdf)
+
+## 4. Payment and Prediction Unlock Feature
+
+### 4.1 Initiate Payment Process
+- **Description:** Add a "Buy" option (e.g., button) in the bottom-right corner of the chart screen. Upon clicking, retrieve the user's payment and credit status to get the Solana payment address.
+- **Endpoint:** `GET /user/{user_id}/status`
+- **Request:**
+```
+curl "http://localhost:8000/user/7d02453cc663/status"
+```
+- **Response Handling (Before Payment):** Display `user_id`, `name`, `has_paid` (false), `credits` (0), `payment_address`, and `payment_explorer` link.
+```json
+{
+  "user_id": "7d02453cc663",
+  "name": "testuser",
+  "has_paid": false,
+  "credits": 0,
+  "payment_address": "VqhmcMjsoW185gzvuQPUJXEVZiSEadCHKqSdr1YzKru",
+  "payment_explorer": "https://explorer.solana.com/address/VqhmcMjsoW185gzvuQPUJXEVZiSEadCHKqSdr1YzKru?cluster=devnet"
+}
+```
+- **Response Handling (After Payment):** Display `user_id`, `name`, `has_paid` (true), `credits` (50). `payment_address` and `payment_explorer` will be null.
+```json
+{
+  "user_id": "7d02453cc663",
+  "name": "testuser",
+  "has_paid": true,
+  "credits": 50,
+  "payment_address": null,
+  "payment_explorer": null
+}
+```
+**Source:** [Apis for backend testing_ (1).pdf](file:///home/hassan/Documents/SE/crypto-predictor-frontend/Apis%20for%20backend%20testing_%20%281%29.pdf)
+
+### 4.2 Verify Payment Transaction
+- **Description:** In a new window or modal, display the `payment_address` obtained from the user status. Provide an input field for the user to enter the Solana transaction hash (`tx_hash`). Implement a "Verify" button to call the `/verify-payment` endpoint.
+- **Endpoint:** `POST /verify-payment`
+- **Request Body:**
+```json
+{
+  "user_id": "7d02453cc663",
+  "tx_hash": "3xpvnRVf9JTbmuNXRMbNEw59Q2J9gKX7F4GFo9pCVYtV2Y8SNaELjoDANVAiP5xwvHgZQcfDdd6DTZknyWqyt4JG"
+}
+```
+- **Success Response Handling:** Display a success message, confirm `has_paid` (true), `credits_granted`, and `total_credits`. Upon successful verification, navigate the user back to the chart screen.
+```json
+{
+  "success": true,
+  "message": "🎉 Payment verified! Received 1.500000 SOL.",
+  "has_paid": true,
+  "credits_granted": 50,
+  "total_credits": 50,
+  "transaction": {
+    "hash": "3xpvnRVf9JTbmuNXRMbNEw59Q2J9gKX7F4GFo9pCVYtV2Y8SNaELjoDANVAiP5xwvHgZQcfDdd6DTZknyWqyt4JG",
+    "amount_sol": 1.5,
+    "explorer_url": "https://explorer.solana.com/tx/3xpvnRVf9JTbmuNXRMbNEw59Q2J9gKX7F4GFo9pCVYtV2Y8SNaELjoDANVAiP5xwvHgZQcfDdd6DTZknyWqyt4JG?cluster=devnet"
+  },
+  "timestamp": "2025-12-02T21:56:55.893548"
+}
+```
+- **Failure Response Handling:** Display an appropriate failure message and reason to the user.
+```json
+{
+  "success": false,
+  "message": "Payment verification failed",
+  "reason": "Transaction not found on Solana devnet",
+  "transaction_hash": "invalid_hash",
+  "payment_details": {
+    "address": "VqhmcMjsoW185gzvuQPUJXEVZiSEadCHKqSdr1YzKru",
+    "amount": "1 SOL (1,000,000,000 lamports)",
+    "network": "Solana Devnet",
+    "explorer": "https://explorer.solana.com/address/VqhmcMjsoW185gzvuQPUJXEVZiSEadCHKqSdr1YzKru"
+  }
+}
+```
+**Source:** [Apis for backend testing_ (1).pdf](file:///home/hassan/Documents/SE/crypto-predictor-frontend/Apis%20for%20backend%20testing_%20%281%29.pdf)
+
+### 4.3 Unlock Prediction Functionality
+- **Description:** After successful payment verification (i.e., `has_paid` is true), enable a "Predict" button on the chart screen.
+
+## 5. AI Prediction Feature
+
+### 5.1 Trigger Prediction
+- **Description:** When the "Predict" button is clicked, make an API call to the backend to get an AI prediction for the selected cryptocurrency.
+- **Endpoint:** `POST /predict`
+- **Request Body:**
+```json
+{
+  "user_id": "7d02453cc663",
+  "coin": "BTC"
+}
+```
+- **Success Response Handling:** Display the prediction details (signal, confidence, target price, stop loss, explanation, current price, credits used, credits remaining) in a popup or dedicated section. Update the user's credit display.
+```json
+{
+  "success": true,
+  "prediction_id": "2d3691bbf5",
+  "coin": "BTC",
+  "signal": "BUY",
+  "confidence": "87%",
+  "current_price": 93596.63,
+  "target_price": 107636.12,
+  "stop_loss": 84237.0,
+  "entry_time": "2025-12-03T11:41:14.998167",
+  "analysis": {
+    "rsi": 28.5,
+    "processing_time": "19.71 seconds",
+    "data_points": 1000
+  },
+  "explanation": "Bitcoin is showing strong bullish momentum with RSI in oversold territory. Current price of $93,596 presents a good buying opportunity with target at $107,636.",
+  "user_info": {
+    "credits_used": 1,
+    "credits_remaining": 49
+  }
+}
+```
+- **Error Handling (No Payment):** If payment is required, display a message indicating payment is needed.
+```json
+{
+  "detail": {
+    "message": "Payment required",
+    "payment_amount": "1 SOL",
+    "payment_address": "VqhmcMjsoW185gzvuQPUJXEVZiSEadCHKqSdr1YzKru",
+    "instructions": "Send 1 SOL to unlock predictor",
+    "explorer": "https://explorer.solana.com/address/VqhmcMjsoW185gzvuQPUJXEVZiSEadCHKqSdr1YzKru?cluster=devnet"
+  }
+}
+```
+- **Error Handling (No Credits):** If the user has no credits, display a message indicating insufficient credits.
+```json
+{
+  "detail": {
+    "message": "No credits remaining",
+    "credits_needed": 1,
+    "credits_available": 0,
+    "action": "Contact support for more credits"
+  }
+}
+```
+**Source:** [Apis for backend testing_ (1).pdf](file:///home/hassan/Documents/SE/crypto-predictor-frontend/Apis%20for%20backend%20testing_%20%281%29.pdf)
+
+## 6. Prediction History Feature
+
+### 6.1 Retrieve Prediction History
+- **Description:** If the user has paid, implement a "Prediction History" section (e.g., in a sidebar or dedicated page) to display their past predictions.
+- **Endpoint:** `GET /predictions/{user_id}`
+- **Request:**
+```
+curl "http://localhost:8000/predictions/7d02453cc663?limit=3"
+```
+- **Expected Response:** Display the `total_predictions` and a list of `predictions`, each including `_id`, `user_id`, `coin`, `signal`, `confidence`, `current_price`, `entry_time`, `target_price`, `stop_loss`, `explanation`, and `created_at`.
+```json
+{
+  "user_id": "7d02453cc663",
+  "total_predictions": 3,
+  "predictions": [
+    {
+      "_id": "2d3691bbf5",
+      "user_id": "7d02453cc663",
+      "coin": "SOL",
+      "signal": "HOLD",
+      "confidence": 61,
+      "current_price": 143.3,
+      "entry_time": "2025-12-03T11:41:14.998167",
+      "target_price": 146.17,
+      "stop_loss": 140.43,
+      "explanation": "HOLD signal for SOL at $143.3.",
+      "created_at": "2025-12-03T11:41:32.391497"
+    }
+    // ... other predictions ...
+  ]
+}
+```
+**Source:** [Apis for backend testing_ (1).pdf](file:///home/hassan/Documents/SE/crypto-predictor-frontend/Apis%20for%20backend%20testing_%20%281%29.pdf)
+
+### 6.2 Calculate and Display Potential Profit/Loss
+- **Description:** For each prediction in the history, calculate and display the potential profit or loss. This involves:
+    - Fetching the current price of the coin using `GET /prices/{coin}`.
+    - If the `signal` was "BUY", calculate profit based on `current_price` (at the time of display) vs. `target_price`.
+    - If the `signal` was "SELL" or "HOLD", calculate potential profit/loss based on `current_price` (at the time of display) vs. `stop_loss` or `target_price` respectively.
+- **Endpoint (for current price):** `GET /prices/{coin}`
+- **Request (example for BTC):**
+```
+curl "http://localhost:8000/prices/BTC?limit=5"
+```
+- **Expected Response (Current Price):**
+```json
+{
+  "coin": "BTC",
+  "current_price": 93596.63,
+  "history": [
+    {
+      "_id": "692fdb89d52650e38982fea0",
+      "coin": "BTC",
+      "price": 93596.63,
+      "timestamp": "2025-12-03T11:41:13.313956"
+    }
+  ],
+  "count": 1
+}
+```
+**Source:** [Apis for backend testing_ (1).pdf](file:///home/hassan/Documents/SE/crypto-predictor-frontend/Apis%20for%20backend%20testing_%20%281%29.pdf)
+

@@ -1,0 +1,42 @@
+/* Remove all Tailwind classes and use hex colors directly */
+
+@keyframes pulse-connect {
+  0%, 100% { 
+    opacity: 1;
+    background-color: #070a12; /* crypto-darker color */
+  }
+  50% { 
+    opacity: 0.5;
+    background-color: #0a0e17; /* crypto-dark color */
+  }
+}
+
+/* You can define other animations without Tailwind */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Helper classes */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+.pulse-connect {
+  animation: pulseConnect 2s ease-in-out infinite;
+}

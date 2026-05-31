@@ -1,0 +1,19 @@
+.theme-dark {
+  --bg-primary: #0a0e17;
+  --bg-secondary: #111827;
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af;
+  --accent-green: #00ff88;
+  --accent-red: #ff4d4d;
+  --accent-blue: #3b82f6;
+}
+
+.theme-light {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f4f6;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --accent-green: #10b981;
+  --accent-red: #ef4444;
+  --accent-blue: #3b82f6;
+}

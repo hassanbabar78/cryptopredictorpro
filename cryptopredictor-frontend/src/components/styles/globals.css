@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-background: #0a0e17;
+    --color-surface: #111827;
+    --color-primary: #00ff88;
+    --color-secondary: #3b82f6;
+    --color-danger: #ff4d4d;
+  }
+
+  * {
+    @apply border-crypto-border; /* Changed from border-border to border-crypto-border */
+  }
+
+  body {
+    @apply bg-crypto-dark text-gray-100 antialiased;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+    overflow-x: hidden;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-crypto-darker;
+  }
+
+  ::webkit-scrollbar-thumb {
+    @apply bg-crypto-border rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-600;
+  }
+}
+
+@layer components {
+  .glass-effect {
+    @apply backdrop-blur-lg bg-white/5 border border-white/10;
+  }
+
+  .chart-container {
+    @apply bg-crypto-darker rounded-xl border border-crypto-border overflow-hidden;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-crypto-green to-emerald-500 hover:from-emerald-500 hover:to-crypto-green 
+           text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 
+           transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl;
+  }
+
+  .btn-secondary {
+    @apply bg-gradient-to-r from-crypto-blue to-blue-500 hover:from-blue-500 hover:to-crypto-blue 
+           text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 
+           transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl;
+  }
+
+  .btn-danger {
+    @apply bg-gradient-to-r from-crypto-red to-red-500 hover:from-red-500 hover:to-crypto-red 
+           text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 
+           transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-crypto-green/30;
+  }
+
+  .price-up {
+    @apply text-binance-green;
+  }
+
+  .price-down {
+    @apply text-binance-red;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-crypto-green via-crypto-teal to-crypto-blue 
+           bg-clip-text text-transparent;
+  }
+}
+
+.chart-container {
+  min-height: 450px;
+}
+
+/* Compact form elements */
+.compact-select {
+  @apply py-1.5 px-3 text-sm rounded border border-crypto-border bg-crypto-darker;
+}
+
+.compact-button {
+  @apply py-1.5 px-3 text-sm rounded font-medium transition-all;
+}
+
+/* Professional scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-crypto-darker;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-crypto-border rounded;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-crypto-green;
+}
