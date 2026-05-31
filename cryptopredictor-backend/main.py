@@ -14,10 +14,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ========== CONFIG ==========
-GEMINI_KEY = os.getenv("GEMINI_KEY", "AIzaSyBS0x1bkjDT4AwbJm1dDoFT1gelpsBoYow")
-YOUR_WALLET = os.getenv("YOUR_WALLET", "VqhmcMjsoW185gzvuQPUJXEVZiSEadCHKqSdr1YzKru")
-MONGODB_URL = os.getenv("MONGODB_URL", "mongodb+srv://Hassan:hassan1339@cluster0.a1uosqr.mongodb.net/")
-SOLANA_RPC_URL = "https://api.devnet.solana.com"
+GEMINI_KEY = os.getenv("GEMINI_KEY")
+YOUR_WALLET = os.getenv("YOUR_WALLET")
+MONGODB_URL = os.getenv("MONGODB_URL")
+SOLANA_RPC_URL = os.getenv("SOLANA_RPC_URL")
 
 # ========== DATABASE ==========
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGODB_URL)
